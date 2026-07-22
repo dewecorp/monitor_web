@@ -1,0 +1,55 @@
+# WEBGUARDIAN - Git Ignore
+
+# Environment
+.env
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Dependencies
+vendor/
+node_modules/
+
+# Storage
+storage/logs/
+storage/cache/
+storage/backup/
+storage/quarantine/
+storage/uploads/
+storage/*.php
+storage/tmp_*
+
+# Backup & Archive
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.bak
+*.old
+
+# Database
+*.sql
+
+# Scripts
+*.bat
+*.exe
+*.cmd
+git-commit-push-backup.bat
+
+# Logs
+*.log
+php_error_log
+error_log
+
+# Cache
+/.opencode/
+.cache/
