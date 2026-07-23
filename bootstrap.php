@@ -20,9 +20,9 @@ session_name(env('SESSION_NAME', 'webguardian_sess'));
 session_set_cookie_params([
     'lifetime' => (int)env('SESSION_LIFETIME', 120) * 60,
     'path' => '/',
-    'secure' => env('APP_ENV') === 'production',
+    'secure' => false,
     'httponly' => true,
-    'samesite' => 'Lax',
+    'samesite' => 'Strict',
 ]);
 
 App\Middleware\SecurityHeaders::set();

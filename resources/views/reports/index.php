@@ -40,7 +40,7 @@ $activeMenu = 'reports'; require VIEW_PATH . '/layouts/main.php';
         <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Status Website</p>
         <a href="?export=csv&period=<?= $period ?>" class="rounded-full bg-indigo-50 px-3 py-1.5 text-[11px] font-medium text-indigo-600 hover:bg-indigo-100 transition-colors">Export CSV</a>
     </div>
-    <div class="overflow-x-auto">
+    <div class="table-wrap">
         <table class="min-w-full text-xs divide-y divide-slate-100">
             <thead class="bg-slate-50">
                 <tr>

@@ -132,7 +132,7 @@ class SecurityScanner
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($code >= 200 && (str_contains($body, 'Index of') || str_contains($body, '<title>Index'))) {
+        if ($body && $code >= 200 && (str_contains($body, 'Index of') || str_contains($body, '<title>Index'))) {
             $this->result['directory_listing'] = 1;
         }
     }

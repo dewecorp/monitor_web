@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <?= csrfMeta() ?>
     <title><?= e($pageTitle ?? 'Dashboard') ?> — WEBGUARDIAN</title>
+    <meta name="wg-ver" content="<?= time() ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="<?= asset('css/toastr.min.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
@@ -22,12 +23,14 @@
         .wg-content-card { background: rgba(255,255,255,0.82); backdrop-filter: blur(8px); border: 1px solid rgba(16,185,129,0.12); border-radius: 1rem; padding: 1rem; box-shadow: 0 2px 12px rgba(16,185,129,0.05); }
         .wg-table-header { background: rgba(16,185,129,0.06) !important; }
         .wg-table-row:hover { background: rgba(16,185,129,0.04) !important; }
-        .summary-card-primary { background: rgba(16,185,129,0.08) !important; border: 1px solid rgba(16,185,129,0.2) !important; }
-        .summary-card-warning { background: rgba(245,158,11,0.08) !important; border: 1px solid rgba(245,158,11,0.2) !important; }
-        .summary-card-info { background: rgba(99,102,241,0.08) !important; border: 1px solid rgba(99,102,241,0.2) !important; }
+        @media (min-width: 768px) { #desktopSidebar { display: block !important; } #mobileSidebar, #mobileOverlay { display: none !important; } #mainLayout { flex-direction: row !important; } }
+        @media (max-width: 767px) { #desktopSidebar { display: none !important; } }
+        canvas { max-width: 100% !important; height: auto !important; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width:100%; }
+        #mainContent table { min-width:auto; width:100%; table-layout:fixed; } #mainContent table td, #mainContent table th { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased" style="overflow-x:hidden">
 
 <header class="wg-nav sticky top-0 z-50">
     <div class="flex items-center justify-between px-4 py-2.5 sm:px-6">
@@ -62,9 +65,11 @@
     </div>
 </header>
 
-<main class="flex w-full flex-1 flex-col gap-6 px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:flex-row lg:items-start">
-    <aside id="sidebar" class="wg-glass-sidebar order-1 w-full space-y-4 hidden md:block lg:w-64 lg:sticky lg:top-24 self-start rounded-2xl p-4">
-        <section class="nav-section p-4">
+<main id="mainLayout" style="display:flex;flex-direction:column;gap:1.5rem;padding:1.25rem 1rem 2.5rem;width:100%;max-width:100vw" class="sm:px-6 lg:px-8">
+    <!-- Sidebar Desktop -->
+    <aside id="desktopSidebar" class="w-full md:block lg:w-64 lg:sticky lg:top-20 wg-glass-sidebar" style="flex-shrink:0;align-self:flex-start;display:none;border-radius:1rem;padding:1rem">
+        <div style="display:flex;flex-direction:column;gap:0.75rem">
+            <section class="nav-section p-4">
             <div class="flex items-center gap-3">
                 <div class="relative h-10 w-10 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-emerald-500 shadow-lg shadow-emerald-500/30">
                     <span class="relative flex h-full w-full items-center justify-center text-sm font-semibold text-white"><?= e(strtoupper(substr($user['nama'] ?? 'U', 0, 2))) ?></span>
@@ -151,9 +156,59 @@
                     Logout</a></li>
             </ul>
         </nav>
-    </aside>
+    </div>
+</aside>
 
-    <section id="mainContent" class="order-2 flex-1 space-y-5">
+<!-- Mobile sidebar overlay -->
+<div id="mobileOverlay" class="fixed inset-0 bg-black/60 z-40 hidden" onclick="closeSidebar()"></div>
+<aside id="mobileSidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl -translate-x-full transition-transform duration-300 overflow-y-auto border-r border-slate-200">
+    <div class="p-4">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-emerald-500 text-[10px] font-bold text-white"><?= e(strtoupper(substr($user['nama'] ?? 'U', 0, 2))) ?></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-800"><?= e($user['nama'] ?? 'User') ?></p>
+                    <p class="text-[9px] text-slate-500"><?= e(ucfirst(str_replace('_', ' ', $user['level'] ?? 'user'))) ?></p>
+                </div>
+            </div>
+            <button onclick="closeSidebar()" class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">✕</button>
+        </div>
+        <nav class="text-xs text-slate-600 space-y-0.5">
+            <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1 mb-1 px-2">Menu</p>
+            <a href="<?= url('/') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'dashboard' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
+                Ringkasan</a>
+            <a href="<?= url('websites') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'websites' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+                Websites</a>
+
+            <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-3 mb-1 px-2">Security</p>
+            <a href="<?= url('security-scan') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'security_scan' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Security Scan</a>
+            <a href="<?= url('file-integrity') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'file_integrity' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">File Integrity</a>
+            <a href="<?= url('ai-analysis') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'ai_analysis' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">AI Analysis</a>
+            <a href="<?= url('hardening') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'hardening' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Hardening</a>
+            <a href="<?= url('incident-response') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'incident' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">IR Engine</a>
+            <a href="<?= url('vulnerability-scan') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'vuln' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Vuln Scanner</a>
+            <a href="<?= url('threat-detection') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'threat' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Threat Detection</a>
+            <a href="<?= url('server-scan') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'server_scan' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Server Scan</a>
+            <a href="<?= url('quarantine') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'quarantine' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Quarantine</a>
+
+            <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-3 mb-1 px-2">Monitoring</p>
+            <a href="<?= url('monitor/health') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'health' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Kesehatan</a>
+            <a href="<?= url('monitor/security') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'security' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Keamanan</a>
+            <a href="<?= url('monitor/traffic') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'traffic' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Traffic</a>
+
+            <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-3 mb-1 px-2">Lainnya</p>
+            <a href="<?= url('reports') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'reports' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Laporan</a>
+            <a href="<?= url('agent/servers') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'agent' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Servers</a>
+            <a href="<?= url('settings') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'settings' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">Pengaturan</a>
+            <div class="border-t border-slate-100 my-3"></div>
+            <a href="#" onclick="closeSidebar(); confirmLogout()" class="flex items-center gap-2 rounded-lg px-3 py-2 text-rose-600 hover:bg-rose-50">Logout</a>
+        </nav>
+    </div>
+</aside>
+
+<section id="mainContent" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1.25rem;overflow-x:hidden">
 
         <?php if (isset($_SESSION['success'])): ?>
         <div id="flashSuccess" class="hidden" data-message="<?= e($_SESSION['success']) ?>"></div>

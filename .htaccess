@@ -1,8 +1,12 @@
 RewriteEngine On
 
-# Allow direct access to existing files and directories
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Prevent rewrite loop
+RewriteCond %{REQUEST_URI} ^/public/ [OR]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route through public/index.php
 RewriteRule ^(.*)$ public/index.php [L,QSA]
 
 # Deny access to sensitive directories

@@ -16,7 +16,7 @@ $activeMenu = 'health'; require VIEW_PATH . '/layouts/main.php';
 </div>
 
 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
+    <div class="table-wrap">
         <table class="min-w-full text-xs divide-y divide-slate-100">
             <thead class="bg-slate-50">
                 <tr>

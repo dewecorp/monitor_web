@@ -19,7 +19,7 @@ $s = $summary;
 
 <!-- Summary Cards -->
 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Website Online</p>
@@ -34,7 +34,7 @@ $s = $summary;
             <span class="text-slate-400">Total: <?= $s['total'] ?></span>
         </div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Skor Keamanan</p>
@@ -49,7 +49,7 @@ $s = $summary;
             <span class="text-slate-400">Skor 0-100</span>
         </div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Response Time</p>
@@ -64,7 +64,7 @@ $s = $summary;
             <span class="text-slate-400">Rata-rata</span>
         </div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Website Offline</p>
@@ -83,7 +83,7 @@ $s = $summary;
 
 <div class="grid gap-4 lg:grid-cols-3 mb-6">
     <!-- Website Status Table -->
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Status Website</p>
@@ -91,11 +91,11 @@ $s = $summary;
             </div>
             <button onclick="checkAllWebsites()" class="rounded-full bg-indigo-50 px-3 py-1.5 text-[11px] font-medium text-indigo-600 hover:bg-indigo-100 transition-colors">Refresh</button>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-xs divide-y divide-slate-100">
+        <div class="table-wrap">
+            <table style="width:100%">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-2 py-2.5 text-center font-semibold text-[11px] uppercase tracking-wide text-slate-500 w-8">#</th><th class="px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wide text-slate-500">Website</th>
+                        <th class="px-2 py-2.5 text-center font-semibold text-[11px] uppercase tracking-wide text-slate-500 w-6">#</th><th class="px-3 py-2.5 text-left font-semibold text-[11px] uppercase tracking-wide text-slate-500">Website</th>
                         <th class="px-3 py-2.5 text-center font-semibold text-[11px] uppercase tracking-wide text-slate-500">Status</th>
                         <th class="px-3 py-2.5 text-right font-semibold text-[11px] uppercase tracking-wide text-slate-500">Response</th>
                         <th class="px-3 py-2.5 text-right font-semibold text-[11px] uppercase tracking-wide text-slate-500">Last Check</th>
@@ -128,7 +128,7 @@ $s = $summary;
     </div>
 
     <!-- Activity Log -->
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Aktivitas</p>
@@ -154,20 +154,20 @@ $s = $summary;
 </div>
 
 <!-- Status Boxes -->
-<div class="flex flex-wrap items-center gap-3 mb-6">
-    <div class="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
-        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-        <span class="text-xs font-semibold text-emerald-700">Online: <?= $summary['online'] ?></span>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div class="flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-2 py-1.5 text-[10px] truncate">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
+        <span class="font-semibold text-emerald-700">Online: <?= $summary['online'] ?></span>
     </div>
-    <div class="flex items-center gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3 py-2">
-        <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
-        <span class="text-xs font-semibold text-rose-700">Offline: <?= $summary['offline'] ?></span>
+    <div class="flex items-center gap-1.5 rounded-lg bg-rose-50 border border-rose-200 px-2 py-1.5 text-[10px] truncate">
+        <span class="h-2 w-2 rounded-full bg-rose-500 shrink-0"></span>
+        <span class="font-semibold text-rose-700">Offline: <?= $summary['offline'] ?></span>
     </div>
-    <div class="flex items-center gap-2 rounded-lg bg-sky-50 border border-sky-200 px-3 py-2">
-        <span class="text-xs font-semibold text-sky-700">Response: <?= $summary['avg_response'] ?> ms</span>
+    <div class="flex items-center gap-1.5 rounded-lg bg-sky-50 border border-sky-200 px-2 py-1.5 text-[10px] truncate">
+        <span class="font-semibold text-sky-700">Response: <?= $summary['avg_response'] ?> ms</span>
     </div>
-    <div class="flex items-center gap-2 rounded-lg bg-indigo-50 border border-indigo-200 px-3 py-2">
-        <span class="text-xs font-semibold text-indigo-700">Keamanan: <?= $summary['avg_security'] ?>%</span>
+    <div class="flex items-center gap-1.5 rounded-lg bg-indigo-50 border border-indigo-200 px-2 py-1.5 text-[10px] truncate">
+        <span class="font-semibold text-indigo-700">Keamanan: <?= $summary['avg_security'] ?>%</span>
     </div>
 </div>
 
@@ -175,28 +175,28 @@ $s = $summary;
 
 <!-- Chart Widgets -->
 <div class="grid gap-4 lg:grid-cols-2 mb-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Uptime 7 Hari</p>
             <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-600">Rata-rata</span>
         </div>
         <div class="relative h-48"><canvas id="uptimeChart"></canvas></div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Response Time 24 Jam</p>
             <span class="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-600">ms</span>
         </div>
         <div class="relative h-48"><canvas id="responseChart"></canvas></div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Skor Keamanan</p>
             <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-600">0-100</span>
         </div>
         <div class="relative h-48"><canvas id="securityChart"></canvas></div>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
         <div class="flex items-center justify-between mb-3">
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Aktivitas 7 Hari</p>
             <span class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600">Log</span>
@@ -206,7 +206,7 @@ $s = $summary;
 </div>
 
 <!-- Traffic Chart Real-time -->
-<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6" style="width:100%;max-width:100%">
     <div class="flex items-center justify-between mb-3">
         <div>
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Real-time Traffic</p>
@@ -224,14 +224,14 @@ $s = $summary;
 </div>
 
 <!-- Traffic Section -->
-<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6" style="width:100%;max-width:100%">
     <div class="flex items-center justify-between mb-3">
         <div>
             <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Traffic</p>
             <p class="text-sm font-semibold text-slate-800">Perbandingan traffic 7 hari</p>
         </div>
     </div>
-    <div class="overflow-x-auto">
+    <div class="table-wrap">
         <table class="min-w-full text-xs divide-y divide-slate-100">
             <thead class="bg-slate-50">
                 <tr>

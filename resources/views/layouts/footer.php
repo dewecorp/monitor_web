@@ -7,6 +7,20 @@
 </footer>
 
 <script>
+// Prevent back-forward cache — force fresh load
+window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+        var lastLoad = sessionStorage.getItem('wg_last_load') || 0;
+        var now = Date.now();
+        if (now - parseInt(lastLoad) > 2000) {
+            sessionStorage.setItem('wg_last_load', String(now));
+            window.location.reload();
+        }
+    }
+});
+window.addEventListener('pagehide', function() {});
+sessionStorage.setItem('wg_last_load', String(Date.now()));
+
 const BASE_URL = '<?= url('/') ?>';
 </script>
 <script src="<?= asset('js/jquery.min.js') ?>"></script>
@@ -142,27 +156,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Mobile sidebar toggle - show/hide with slide
+    // Mobile sidebar toggle
     var toggle = document.getElementById('sidebarToggle');
-    var sidebar = document.getElementById('sidebar');
+    var sidebar = document.getElementById('mobileSidebar');
+    var overlay = document.getElementById('mobileOverlay');
+    
+    function openSidebar() {
+        if (sidebar) sidebar.classList.remove('-translate-x-full');
+        if (sidebar) sidebar.classList.add('translate-x-0');
+        if (overlay) overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        if (sidebar) sidebar.classList.add('-translate-x-full');
+        if (sidebar) sidebar.classList.remove('translate-x-0');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
     if (toggle && sidebar) {
-        toggle.addEventListener('click', function() {
-            if (window.innerWidth < 768) {
-                sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('!block');
-                sidebar.classList.toggle('fixed');
-                sidebar.classList.toggle('inset-0');
-                sidebar.classList.toggle('z-50');
-                sidebar.classList.toggle('overflow-y-auto');
-            }
-        });
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth < 768 && !sidebar.classList.contains('hidden')) {
-                if (!sidebar.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
-                    sidebar.classList.add('hidden');
-                    sidebar.classList.remove('!block', 'fixed', 'inset-0', 'z-50', 'overflow-y-auto');
-                }
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (sidebar.classList.contains('-translate-x-full')) {
+                openSidebar();
+            } else {
+                closeSidebar();
             }
         });
     }

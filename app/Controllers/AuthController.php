@@ -18,12 +18,30 @@ class AuthController
     {
         Auth::guest();
 
+        // Rate limit: max 5 attempts per minute per IP
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $rateKey = 'login_' . $ip;
+        $attempts = $_SESSION[$rateKey] ?? ['count' => 0, 'time' => time()];
+
+        if ($attempts['count'] >= 5 && time() - $attempts['time'] < 60) {
+            $wait = 60 - (time() - $attempts['time']);
+            $_SESSION['error'] = "Terlalu banyak percobaan login. Coba lagi {$wait} detik.";
+            redirect('/login');
+        }
+
         $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
 
         if (!$username || !$password) {
             $_SESSION['error'] = 'Harap isi username dan password!';
             redirect('/login');
+        }
+
+        // Increment attempt counter
+        if (time() - $attempts['time'] > 60) {
+            $_SESSION[$rateKey] = ['count' => 1, 'time' => time()];
+        } else {
+            $_SESSION[$rateKey] = ['count' => $attempts['count'] + 1, 'time' => $attempts['time']];
         }
 
         $user = User::findByUsername($username);
