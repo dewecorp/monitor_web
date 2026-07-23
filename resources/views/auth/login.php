@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — WEBGUARDIAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/toastr.min.css') ?>">
+    <link rel="stylesheet" href="<?= baseUrl() ?>/assets/css/dashboard.css?v=<?= time() ?>">
     <style>
         body { background: #0f172a !important; color: #e2e8f0; font-family: system-ui, sans-serif; }
         .wg-card { background: #1e293bb3 !important; border: 1px solid #334155; border-radius: 1rem; padding: 2rem; }

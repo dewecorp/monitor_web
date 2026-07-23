@@ -7,7 +7,7 @@
     <?= csrfMeta() ?>
     <title><?= e($pageTitle ?? 'Dashboard') ?> — WEBGUARDIAN</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css">
+    <link rel="stylesheet" href="<?= asset('css/toastr.min.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
     <style>
         body { background: #d1fae5 !important; color: #0f172a; font-family: system-ui, -apple-system, sans-serif; }
@@ -41,6 +41,9 @@
             <div>
                 <h1 class="wg-gradient-text text-sm font-bold tracking-tight">WEBGUARDIAN</h1>
                 <p class="text-[10px] text-slate-500">Monitoring & Security Center</p>
+            </div>
+            <div class="hidden sm:block text-xs text-slate-600 ml-4 pl-4 border-l border-emerald-200/60 font-medium">
+                <span id="clockDisplay"><?= date('d M Y, H:i') ?></span>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -111,6 +114,12 @@
                 <li><a href="<?= url('threat-detection') ?>" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors <?= $activeMenu === 'threat' ? 'wg-sidebar-item active' : 'text-slate-600 wg-sidebar-item' ?>">
                     <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
                     Threat Detection</a></li>
+                <li><a href="<?= url('server-scan') ?>" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors <?= $activeMenu === 'server_scan' ? 'wg-sidebar-item active' : 'text-slate-600 wg-sidebar-item' ?>">
+                    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Server Scan</a></li>
+                <li><a href="<?= url('quarantine') ?>" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors <?= $activeMenu === 'quarantine' ? 'wg-sidebar-item active' : 'text-slate-600 wg-sidebar-item' ?>">
+                    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+                    Quarantine</a></li>
             </ul>
 
             <p class="mb-1 px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Monitoring</p>

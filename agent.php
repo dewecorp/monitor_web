@@ -83,7 +83,7 @@ function getPhpInfo(): array
     return [
         'version' => PHP_VERSION,
         'sapi' => PHP_SAPI,
-        'os' => PHP_OS_FAMILY . ' ' => php_uname('r'),
+        'os' => PHP_OS_FAMILY . ' ' . php_uname('r'),
         'extensions' => implode(', ', get_loaded_extensions()),
         'disabled_functions' => ini_get('disable_functions') ?: 'none',
         'memory_limit' => ini_get('memory_limit'),
@@ -165,9 +165,11 @@ $payload = [
     'memory' => $mem,
     'disk' => $disk,
     'load_average' => getLoadAverage(),
-    'processes' => getRunningProcesses(),
+    'processes' => getProcessList(),
+    'open_ports' => getOpenPorts(),
+    'services' => getServiceStatus(),
+    'uptime' => getUptime(),
     'php' => getPhpInfo(),
-    'services' => getServices(),
     'php_version' => PHP_VERSION,
 ];
 
@@ -198,4 +200,106 @@ if (php_sapi_name() === 'cli') {
 } else {
     header('Content-Type: application/json');
     echo json_encode(['sent' => true, 'http' => $httpCode, 'time' => date('Y-m-d H:i:s')]);
+}
+
+function getProcessList(): array
+{
+    $processes = [];
+    if (PHP_OS_FAMILY === 'Windows') {
+        $output = shell_exec('tasklist /FO CSV /NH 2>nul');
+        if ($output) {
+            $lines = array_filter(explode("\n", trim($output)));
+            foreach ($lines as $line) {
+                $parts = str_getcsv($line);
+                if (count($parts) >= 5) {
+                    $processes[] = [
+                        'name' => $parts[0],
+                        'pid' => (int)$parts[1],
+                        'mem_kb' => (int)str_replace(',', '', $parts[4]),
+                        'status' => 'running',
+                    ];
+                }
+            }
+        }
+    } else {
+        $output = shell_exec('ps aux --sort=-%mem --no-headers 2>/dev/null | head -20');
+        if ($output) {
+            foreach (explode("\n", trim($output)) as $line) {
+                $parts = preg_split('/\s+/', trim($line), 11);
+                if (count($parts) >= 11) {
+                    $processes[] = [
+                        'user' => $parts[0],
+                        'pid' => (int)$parts[1],
+                        'cpu' => (float)$parts[2],
+                        'mem' => (float)$parts[3],
+                        'cmd' => $parts[10],
+                    ];
+                }
+            }
+        }
+    }
+    return array_slice($processes, 0, 15);
+}
+
+function getOpenPorts(): array
+{
+    $ports = [];
+    if (PHP_OS_FAMILY === 'Windows') {
+        $output = shell_exec('netstat -an 2>nul');
+        if ($output) {
+            foreach (explode("\n", $output) as $line) {
+                if (preg_match('/TCP\s+(\S+):(\d+)\s+(\S+)\s+LISTENING/i', $line, $m)) {
+                    $ports[] = ['port' => (int)$m[2], 'ip' => $m[1], 'proto' => 'TCP'];
+                }
+            }
+        }
+    } else {
+        $output = shell_exec('ss -tln 2>/dev/null');
+        if ($output) {
+            foreach (explode("\n", $output) as $line) {
+                if (preg_match('/LISTEN\s+.*:(\d+)\s/', $line, $m)) {
+                    $ports[] = ['port' => (int)$m[1], 'ip' => '0.0.0.0', 'proto' => 'TCP'];
+                }
+            }
+        }
+    }
+    return $ports;
+}
+
+function getServiceStatus(): array
+{
+    $services = [];
+    $checks = [
+        'apache' => PHP_OS_FAMILY === 'Windows' ? 'Apache2.4' : 'apache2',
+        'nginx' => PHP_OS_FAMILY === 'Windows' ? '' : 'nginx',
+        'mysql' => PHP_OS_FAMILY === 'Windows' ? 'MySQL' : 'mysql',
+        'php_fpm' => PHP_OS_FAMILY === 'Windows' ? '' : 'php-fpm',
+        'redis' => PHP_OS_FAMILY === 'Windows' ? 'Redis' : 'redis-server',
+    ];
+
+    foreach ($checks as $name => $svc) {
+        if (!$svc) { $services[$name] = 'unknown'; continue; }
+        
+        if (PHP_OS_FAMILY === 'Windows') {
+            $out = shell_exec("sc query \"{$svc}\" 2>nul");
+            $services[$name] = $out && str_contains($out, 'RUNNING') ? 'running' : 'stopped';
+        } else {
+            $out = shell_exec("systemctl is-active {$svc} 2>/dev/null");
+            $services[$name] = $out ? trim($out) : 'unknown';
+        }
+    }
+    return $services;
+}
+
+function getSystemUptime(): string
+{
+    if (PHP_OS_FAMILY === 'Windows') {
+        $out = shell_exec('wmic os get lastbootuptime 2>nul');
+        return $out ? trim($out) : 'N/A';
+    }
+    $uptime = file_get_contents('/proc/uptime');
+    $seconds = (int)explode(' ', $uptime)[0];
+    $days = floor($seconds / 86400);
+    $hours = floor(($seconds % 86400) / 3600);
+    return "{$days}d {$hours}h";
 }

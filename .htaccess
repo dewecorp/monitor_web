@@ -1,17 +1,10 @@
 RewriteEngine On
 
-# Pass Authorization header through internal rewrites
-RewriteCond %{HTTP:Authorization} ^(.+)$
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-# Rewrite root to index.php internally
-RewriteRule ^$ index.php [L,QSA]
-
-# Route all non-file requests through index.php
+# Allow direct access to existing files and directories
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ index.php [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [L,QSA]
 
 # Deny access to sensitive directories
 RewriteRule ^(app|config|database|resources|routes|storage|vendor|cron)(/|$) - [F,L]
-
 Options -Indexes

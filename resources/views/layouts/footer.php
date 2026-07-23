@@ -9,11 +9,11 @@
 <script>
 const BASE_URL = '<?= url('/') ?>';
 </script>
+<script src="<?= asset('js/jquery.min.js') ?>"></script>
+<script src="<?= asset('js/toastr.min.js') ?>"></script>
+<script src="<?= asset('js/sweetalert2.min.js') ?>"></script>
+<script src="<?= asset('js/chart.min.js') ?>"></script>
 <script src="<?= asset('js/dashboard.js') ?>"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 toastr.options = { positionClass: 'toast-bottom-right', progressBar: true, closeButton: true, timeOut: 3000 };
 
@@ -97,6 +97,17 @@ function deleteWebsite(id, name) {
         }
     });
 }
+
+function updateClock() {
+    var now = new Date();
+    var months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    var str = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear() + ', ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    var el = document.getElementById('clockDisplay');
+    if (el) el.textContent = str;
+}
+setInterval(updateClock, 30000);
+updateClock();
 
 document.addEventListener('DOMContentLoaded', function() {
     // Flash messages as SweetAlert

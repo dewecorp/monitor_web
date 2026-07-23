@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+// No cache headers
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: Thu, 19 Nov 1981 08:52:00 GMT');
+
 if (isset($_GET['phpdebug'])) {
     header('Content-Type: text/plain');
     echo "Entry point reached\n";

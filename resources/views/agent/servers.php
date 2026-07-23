@@ -28,11 +28,23 @@ require VIEW_PATH . '/layouts/main.php';
     <?php foreach ($servers as $s): ?>
     <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-800"><?= e($s['server_name']) ?></h3>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-800"><?= e($s['server_name']) ?></h3>
+                <p class="text-[10px] text-slate-400"><?= e($s['hostname'] ?? '') ?> · <?= e($s['ip'] ?? '') ?></p>
+            </div>
             <span class="flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-semibold <?= ($s['cpu'] ?? 100) < 80 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' ?>">
                 <span class="h-1.5 w-1.5 rounded-full <?= ($s['cpu'] ?? 100) < 80 ? 'bg-emerald-500' : 'bg-rose-500' ?>"></span>
                 <?= timeAgo($s['last_report']) ?>
             </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px] text-slate-600 mb-3 pb-3 border-b border-slate-100">
+            <span>OS: <strong><?= e($s['os_name'] ?? PHP_OS_FAMILY) ?> <?= e($s['os_version'] ?? '') ?></strong></span>
+            <span>Web: <strong><?= e($s['web_server'] ?? '-') ?></strong></span>
+            <span>PHP: <strong><?= e($s['php_version'] ?? '-') ?></strong></span>
+            <span>DB: <strong><?= e($s['db_version'] ?? '-') ?></strong></span>
+            <span>Uptime: <strong><?= e($s['uptime'] ?? '-') ?></strong></span>
+            <span>Reports: <strong><?= $s['total_reports'] ?></strong></span>
         </div>
 
         <div class="space-y-2">
@@ -60,9 +72,10 @@ require VIEW_PATH . '/layouts/main.php';
             <span>PHP: <?= e($s['php_version'] ?? '-') ?></span>
             <span>Uptime: <?= e($s['uptime'] ?? '-') ?></span>
             <span>Reports: <?= $s['total_reports'] ?></span>
+            <span>Load: <?= e($s['load_avg'] ?? '-') ?></span>
         </div>
 
-        <div class="mt-3 pt-3 border-t border-slate-100 flex gap-2">
+        <div class="mt-3 flex flex-wrap gap-1">
             <form method="POST" action="<?= url('agent/restart') ?>" class="inline">
                 <?= csrfField() ?>
                 <input type="hidden" name="service" value="apache">

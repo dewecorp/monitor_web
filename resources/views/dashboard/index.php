@@ -153,6 +153,26 @@ $s = $summary;
     </div>
 </div>
 
+<!-- Status Boxes -->
+<div class="flex flex-wrap items-center gap-3 mb-6">
+    <div class="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+        <span class="text-xs font-semibold text-emerald-700">Online: <?= $summary['online'] ?></span>
+    </div>
+    <div class="flex items-center gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3 py-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+        <span class="text-xs font-semibold text-rose-700">Offline: <?= $summary['offline'] ?></span>
+    </div>
+    <div class="flex items-center gap-2 rounded-lg bg-sky-50 border border-sky-200 px-3 py-2">
+        <span class="text-xs font-semibold text-sky-700">Response: <?= $summary['avg_response'] ?> ms</span>
+    </div>
+    <div class="flex items-center gap-2 rounded-lg bg-indigo-50 border border-indigo-200 px-3 py-2">
+        <span class="text-xs font-semibold text-indigo-700">Keamanan: <?= $summary['avg_security'] ?>%</span>
+    </div>
+</div>
+
+<!-- Chart Widgets -->
+
 <!-- Chart Widgets -->
 <div class="grid gap-4 lg:grid-cols-2 mb-6">
     <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -182,6 +202,24 @@ $s = $summary;
             <span class="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600">Log</span>
         </div>
         <div class="relative h-48"><canvas id="activityChart"></canvas></div>
+    </div>
+</div>
+
+<!-- Traffic Chart Real-time -->
+<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6">
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Real-time Traffic</p>
+            <p class="text-sm font-semibold text-slate-800">Traffic 7 hari terakhir</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+            <span class="text-[10px] text-slate-400">Live</span>
+            <button onclick="refreshTrafficChart()" class="rounded-full bg-indigo-50 px-2.5 py-1 text-[9px] font-medium text-indigo-600 hover:bg-indigo-100 ml-2">Refresh</button>
+        </div>
+    </div>
+    <div class="relative h-64">
+        <canvas id="trafficRealtimeChart"></canvas>
     </div>
 </div>
 
@@ -320,7 +358,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        // Traffic Realtime Chart (static, manual refresh)
+        var trafficData = <?= json_encode($trafficData) ?>;
+        var trafficChart = new Chart(document.getElementById('trafficRealtimeChart'), {
+            type: 'bar',
+            data: {
+                labels: trafficData.map(function(t) { return t.nama_website ? t.nama_website.substring(0,12) : ''; }),
+                datasets: [
+                    {
+                        label: 'Pengunjung',
+                        data: trafficData.map(function(t) { return t.visitors || 0; }),
+                        backgroundColor: 'rgba(99,102,241,0.6)',
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'Page Views',
+                        data: trafficData.map(function(t) { return t.page_views || 0; }),
+                        backgroundColor: 'rgba(34,197,94,0.6)',
+                        borderRadius: 4,
+                        order: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { boxWidth: 8, font: { size: 10 } } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.12)' }, ticks: { font: { size: 9 } } }
+                }
+            }
+        });
 });
+
+function refreshTrafficChart() {
+    location.reload();
+}
 </script>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>

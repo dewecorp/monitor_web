@@ -59,6 +59,15 @@ $router->get('/ai-analysis', [App\Controllers\AiAnalysisController::class, 'inde
 // Server Hardening
 $router->get('/hardening', [App\Controllers\HardeningController::class, 'index']);
 
+// Server Security Scanner
+$router->get('/server-scan', [App\Controllers\ServerScanController::class, 'index']);
+$router->post('/server-scan/harden', [App\Controllers\ServerScanController::class, 'harden']);
+
+// Quarantine
+$router->get('/quarantine', [App\Controllers\QuarantineController::class, 'index']);
+$router->post('/quarantine/restore', [App\Controllers\QuarantineController::class, 'restore']);
+$router->post('/quarantine/delete', [App\Controllers\QuarantineController::class, 'deleteForever']);
+
 // Incident Response
 $router->get('/incident-response', [App\Controllers\IncidentController::class, 'index']);
 

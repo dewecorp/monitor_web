@@ -101,7 +101,8 @@ if (!function_exists('url')) {
 if (!function_exists('asset')) {
     function asset(string $path): string
     {
-        return baseUrl() . '/assets/' . ltrim($path, '/');
+        $base = baseUrl();
+        return $base . '/assets/' . ltrim($path, '/') . '?v=' . (filemtime(BASE_PATH . '/assets/' . ltrim($path, '/')) ?: time());
     }
 }
 
