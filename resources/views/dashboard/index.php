@@ -5,7 +5,20 @@ require VIEW_PATH . '/layouts/main.php';
 
 $s = $summary;
 ?>
-<nav class="text-[11px] text-slate-500 mb-5">Dashboard <span class="mx-1 text-slate-300">/</span> <span class="text-slate-700 font-medium">Ringkasan</span></nav>
+
+<?php if ($s['offline'] > 0): ?>
+<div style="border:1px solid #fecaca;background:#fff1f2;border-radius:1rem;padding:1rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:0.75rem">
+    <svg style="width:1.25rem;height:1.25rem;flex-shrink:0;color:#f43f5e;margin-top:2px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+    <div style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem">
+            <p style="font-size:0.875rem;font-weight:600;color:#9f1239"><?= $s['offline'] ?> website dalam kondisi tidak baik</p>
+            <button onclick="checkAllWebsites()" style="padding:0.375rem 0.75rem;background:#e11d48;color:#fff;border:none;border-radius:0.5rem;font-size:0.75rem;font-weight:600;cursor:pointer">Periksa</button>
+        </div>
+        <p style="font-size:0.75rem;color:#e11d48;margin-top:4px">Segera periksa website yang offline untuk mencegah gangguan.</p>
+    </div>
+</div>
+<?php endif; ?>
+<nav class="text-[11px] text-slate-500 mb-5">Dashboard <span class="mx-1 text-slate-300">/</span> <span class="text-slate-700 font-medium">Dashboard</span></nav>
 
 <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
     <div>
@@ -81,9 +94,10 @@ $s = $summary;
     </div>
 </div>
 
-<div class="grid gap-4 lg:grid-cols-3 mb-6">
+<div id="dashboardGrid">
+
     <!-- Website Status Table -->
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2" style="width:100%;max-width:100%">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2" style="width:100%;max-width:100%;margin-bottom:1rem">
         <div class="flex items-center justify-between mb-3">
             <div>
                 <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Status Website</p>
@@ -124,31 +138,6 @@ $s = $summary;
                     <?php endif; ?>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Activity Log -->
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
-        <div class="flex items-center justify-between mb-3">
-            <div>
-                <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Aktivitas</p>
-                <p class="text-sm font-semibold text-slate-800">Log terbaru</p>
-            </div>
-            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500"><?= count($activities) ?></span>
-        </div>
-        <div class="space-y-2 max-h-[360px] overflow-y-auto scroll-thin">
-            <?php foreach ($activities as $log): ?>
-            <div class="flex items-start gap-2.5 rounded-lg bg-slate-50/50 p-2.5">
-                <span class="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-indigo-400"></span>
-                <div class="min-w-0">
-                    <p class="text-[11px] text-slate-700"><?= e($log['detail'] ?? $log['aksi']) ?></p>
-                    <p class="text-[10px] text-slate-400"><?= timeAgo($log['created_at']) ?></p>
-                </div>
-            </div>
-            <?php endforeach; ?>
-            <?php if (empty($activities)): ?>
-            <p class="text-[11px] text-slate-400 text-center py-4">Belum ada aktivitas</p>
-            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -255,6 +244,39 @@ $s = $summary;
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Activity Log -->
+<div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm w-full" style="width:100%;max-width:100%">
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Aktivitas</p>
+            <p class="text-sm font-semibold text-slate-800">Log terbaru</p>
+        </div>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500"><?= count($activities) ?></span>
+    </div>
+    <div class="space-y-2 max-h-[360px] overflow-y-auto border-l border-slate-200 pl-3 ml-1">
+        <?php function activityColor($aksi) {
+            if (preg_match('/login|logout/i', $aksi)) return 'border-emerald-300 bg-emerald-500 shadow-emerald-500/25';
+            if (preg_match('/check|scan/i', $aksi)) return 'border-sky-300 bg-sky-500 shadow-sky-500/25';
+            if (preg_match('/tambah|edit|hapus|delete|create|update/i', $aksi)) return 'border-amber-300 bg-amber-400 shadow-amber-400/25';
+            if (preg_match('/restart|service/i', $aksi)) return 'border-rose-300 bg-rose-500 shadow-rose-500/25';
+            if (preg_match('/security|hardening|quarantine/i', $aksi)) return 'border-violet-300 bg-violet-500 shadow-violet-500/25';
+            return 'border-slate-300 bg-slate-400 shadow-slate-400/25';
+        } ?>
+        <?php foreach ($activities as $log): $c = activityColor($log['aksi']); ?>
+        <div class="relative pl-3 pb-2 border-l border-slate-200 ml-2">
+            <div class="absolute -left-[9px] top-1 h-3 w-3 rounded-full border-2 border-white <?= $c ?>"></div>
+            <div class="text-xs">
+                <p class="font-medium text-slate-800"><?= e($log['detail'] ?? $log['aksi']) ?></p>
+                <p class="text-[10px] text-slate-500 mt-0.5"><?= e($log['nama'] ?? '') ?> · <?= date('d/m/Y H:i', strtotime($log['created_at'])) ?> · <?= timeAgo($log['created_at']) ?></p>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php if (empty($activities)): ?>
+        <p class="text-[11px] text-slate-400 text-center py-4">Belum ada aktivitas</p>
+        <?php endif; ?>
     </div>
 </div>
 

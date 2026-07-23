@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <?= csrfMeta() ?>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='15' font-weight='bold' font-family='system-ui'%3EWG%3C/text%3E%3C/svg%3E" />
     <title><?= e($pageTitle ?? 'Dashboard') ?> — WEBGUARDIAN</title>
     <meta name="wg-ver" content="<?= time() ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="<?= asset('css/toastr.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>?v=<?= time() ?>">
     <style>
         body { background: #d1fae5 !important; color: #0f172a; font-family: system-ui, -apple-system, sans-serif; }
         .wg-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(16,185,129,0.15); border-radius: 1rem; padding: 1rem; box-shadow: 0 4px 16px rgba(16,185,129,0.06); }
@@ -25,12 +26,13 @@
         .wg-table-row:hover { background: rgba(16,185,129,0.04) !important; }
         @media (min-width: 768px) { #desktopSidebar { display: block !important; } #mobileSidebar, #mobileOverlay { display: none !important; } #mainLayout { flex-direction: row !important; } }
         @media (max-width: 767px) { #desktopSidebar { display: none !important; } }
-        canvas { max-width: 100% !important; height: auto !important; }
+canvas { max-width: 100% !important; height: auto !important; }
+        #dashboardGrid { display:block; }
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width:100%; }
         #mainContent table { min-width:auto; width:100%; table-layout:fixed; } #mainContent table td, #mainContent table th { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased" style="overflow-x:hidden">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
 
 <header class="wg-nav sticky top-0 z-50">
     <div class="flex items-center justify-between px-4 py-2.5 sm:px-6">
@@ -90,7 +92,7 @@
             <ul class="space-y-0.5 mb-4">
                 <li><a href="<?= url('/') ?>" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors <?= ($activeMenu ?? '') === 'dashboard' ? 'wg-sidebar-item active' : 'text-slate-600 wg-sidebar-item' ?>">
                     <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
-                    Ringkasan</a></li>
+                    Dashboard</a></li>
                 <li><a href="<?= url('websites') ?>" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors <?= $activeMenu === 'websites' ? 'wg-sidebar-item active' : 'text-slate-600 wg-sidebar-item' ?>">
                     <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
                     Websites</a></li>
@@ -177,7 +179,7 @@
             <p class="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1 mb-1 px-2">Menu</p>
             <a href="<?= url('/') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'dashboard' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
-                Ringkasan</a>
+                Dashboard</a>
             <a href="<?= url('websites') ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 <?= $activeMenu === 'websites' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100' ?>">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
                 Websites</a>

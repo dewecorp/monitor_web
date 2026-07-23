@@ -7,20 +7,8 @@
 </footer>
 
 <script>
-// Prevent back-forward cache — force fresh load
-window.addEventListener('pageshow', function(e) {
-    if (e.persisted) {
-        var lastLoad = sessionStorage.getItem('wg_last_load') || 0;
-        var now = Date.now();
-        if (now - parseInt(lastLoad) > 2000) {
-            sessionStorage.setItem('wg_last_load', String(now));
-            window.location.reload();
-        }
-    }
-});
-window.addEventListener('pagehide', function() {});
-sessionStorage.setItem('wg_last_load', String(Date.now()));
-
+// Force fresh load every time
+window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(true); });
 const BASE_URL = '<?= url('/') ?>';
 </script>
 <script src="<?= asset('js/jquery.min.js') ?>"></script>
