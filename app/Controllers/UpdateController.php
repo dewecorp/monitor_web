@@ -20,18 +20,31 @@ class UpdateController
 
     public function check(): void
     {
-        $zipUrl = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
-
+        // Get latest commit SHA from master branch
         $ch = curl_init();
-        curl_setopt_array($ch, [CURLOPT_URL => $zipUrl, CURLOPT_NOBODY => true, CURLOPT_TIMEOUT => 10, CURLOPT_FOLLOWLOCATION => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_USERAGENT => 'WEBGUARDIAN/1.0']);
-        curl_exec($ch);
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://api.github.com/repos/dewecorp/monitor_web/commits/master?per_page=1',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'WEBGUARDIAN/1.0',
+        ]);
+        $resp = curl_exec($ch);
         $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($http === 200 || $http === 302) {
-            jsonResponse(['update_available' => true, 'message' => 'Pembaruan tersedia, silakan update']);
+        if ($http === 200) {
+            $data = json_decode($resp, true);
+            $sha = $data['sha'] ?? '';
+            $date = $data['commit']['committer']['date'] ?? '';
+            jsonResponse([
+                'update_available' => true,
+                'sha' => $sha,
+                'date' => $date,
+                'message' => 'Pembaruan tersedia',
+            ]);
         } else {
-            jsonResponse(['update_available' => false, 'message' => 'Gagal terhubung ke server update']);
+            jsonResponse(['update_available' => false, 'sha' => '', 'message' => 'Gagal cek update']);
         }
     }
 

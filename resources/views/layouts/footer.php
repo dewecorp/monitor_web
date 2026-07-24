@@ -230,14 +230,18 @@ function systemUpdate() {
     });
 }
 
-// Auto check update
+// Auto check update — hanya tampil jika ada commit baru
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     fetch(BASE_URL + 'update/check').then(function(r){return r.json()}).then(function(d){
-        if (d.update_available) {
-            var badge = document.createElement('span');
-            badge.className = 'absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-rose-500 rounded-full ring-2 ring-white';
-            var btn = document.getElementById('userMenuBtn');
-            if (btn && btn.parentElement) btn.parentElement.appendChild(badge);
+        if (d.update_available && d.sha) {
+            var lastSha = localStorage.getItem('wg_last_sha') || '';
+            if (d.sha !== lastSha) {
+                var badge = document.createElement('span');
+                badge.className = 'absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-rose-500 rounded-full ring-2 ring-white';
+                var btn = document.getElementById('userMenuBtn');
+                if (btn && btn.parentElement) btn.parentElement.appendChild(badge);
+            }
+            localStorage.setItem('wg_last_sha', d.sha);
         }
     }).catch(function(){});
 }
