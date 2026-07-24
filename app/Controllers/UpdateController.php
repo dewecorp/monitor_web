@@ -8,8 +8,9 @@ use App\Models\User;
 
 class UpdateController
 {
-    private string $repoUrl = 'https://api.github.com/repos/dewecorp/monitor_web/releases/latest';
-    private string $zipUrl = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
+    private string $repoUrl = 'https://api.github.com/repos/dewecorp/monitor_web';
+    private string $owner = 'dewecorp';
+    private string $repo = 'monitor_web';
     private string $tempDir;
 
     public function __construct()
@@ -19,48 +20,33 @@ class UpdateController
 
     public function check(): void
     {
-        // Only check on remote servers, not localhost
-        if ($this->isLocal()) {
-            jsonResponse(['update_available' => false, 'message' => 'Lokal']);
+        $zipUrl = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [CURLOPT_URL => $zipUrl, CURLOPT_NOBODY => true, CURLOPT_TIMEOUT => 10, CURLOPT_FOLLOWLOCATION => true, CURLOPT_USERAGENT => 'WEBGUARDIAN/1.0']);
+        curl_exec($ch);
+        $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($http === 200 || $http === 302) {
+            jsonResponse(['update_available' => true, 'message' => 'Pembaruan tersedia, silakan update']);
+        } else {
+            jsonResponse(['update_available' => false, 'message' => 'Gagal terhubung ke server update']);
         }
-
-        $latest = $this->getLatestVersion();
-        if (!$latest) {
-            jsonResponse(['update_available' => false, 'message' => 'Gagal cek update']);
-        }
-
-        $currentVer = $this->getCurrentVersion();
-        $hasUpdate = version_compare($latest['tag_name'] ?? '0', $currentVer, '>');
-
-        jsonResponse([
-            'update_available' => $hasUpdate,
-            'version' => $latest['tag_name'] ?? '',
-            'message' => $hasUpdate ? "Versi {$latest['tag_name']} tersedia" : 'Aplikasi sudah terbaru',
-        ]);
     }
 
     public function run(): void
     {
         Auth::check();
 
-        if ($this->isLocal()) {
-            $_SESSION['error'] = 'Update hanya untuk hosting, bukan localhost';
-            redirect('/');
-        }
-
         try {
-            // Download ZIP
             $zipPath = $this->downloadZip();
-            if (!$zipPath) throw new \Exception('Gagal download file update');
+            if (!$zipPath) throw new \Exception('Gagal download file update dari server remote');
 
-            // Extract
             $extractPath = $this->extractZip($zipPath);
             if (!$extractPath) throw new \Exception('Gagal mengekstrak file');
 
-            // Copy files
             $this->copyFiles($extractPath);
-
-            // Cleanup
             $this->cleanup();
 
             User::logActivity($_SESSION['user_id'], 'Update Sistem', 'Update sistem berhasil');
@@ -88,11 +74,12 @@ class UpdateController
         return '1.0.0';
     }
 
-    private function getLatestVersion(): ?array
+    private function getLatestVersion(): array|null|false
     {
+        // Try to get the latest release
         $ch = curl_init();
         curl_setopt_array($ch, [
-            CURLOPT_URL => $this->repoUrl,
+            CURLOPT_URL => 'https://api.github.com/repos/dewecorp/monitor_web/releases/latest',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10,
             CURLOPT_USERAGENT => 'WEBGUARDIAN-Updater/1.0',
@@ -102,8 +89,10 @@ class UpdateController
         $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($http !== 200) return null;
-        return json_decode($resp, true);
+        if ($http === 200) return json_decode($resp, true);
+
+        // No releases yet — use default version
+        return ['tag_name' => '1.0.0'];
     }
 
     private function downloadZip(): ?string
@@ -111,10 +100,12 @@ class UpdateController
         if (!is_dir($this->tempDir)) mkdir($this->tempDir, 0755, true);
         $zipPath = $this->tempDir . '/update.zip';
 
+        $url = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
+
         $ch = curl_init();
         $fp = fopen($zipPath, 'w');
         curl_setopt_array($ch, [
-            CURLOPT_URL => $this->zipUrl,
+            CURLOPT_URL => $url,
             CURLOPT_FILE => $fp,
             CURLOPT_TIMEOUT => 120,
             CURLOPT_FOLLOWLOCATION => true,

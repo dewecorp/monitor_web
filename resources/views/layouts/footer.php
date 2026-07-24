@@ -48,7 +48,10 @@ function showSwalLoading(title, text) {
 }
 
 function showSwalResult(icon, title, text) {
-    Swal.fire({ icon: icon, title: title, text: text, timer: 3000, showConfirmButton: false, customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-6 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0' } });
+    var config = { icon: icon, title: title, text: text, showConfirmButton: false, customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-6 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0' } };
+    if (icon === 'success') { config.timer = 3000; }
+    else { config.showConfirmButton = true; config.confirmButtonText = 'OK'; config.confirmButtonColor = '#6366f1'; }
+    Swal.fire(config);
 }
 
 function checkAllWebsites() {
@@ -215,13 +218,15 @@ function systemUpdate() {
         customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-8 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0', confirmButton: 'btn-dash-primary text-[11px] px-4 py-2 mx-1 rounded-full', cancelButton: 'btn-dashboard-soft text-[11px] px-4 py-2 mx-1 rounded-full' }
     }).then(function(r) {
         if (!r.isConfirmed) return;
-        showSwalLoading('Mengupdate Sistem', 'Mengunduh dan memasang pembaruan...');
-        var form = document.createElement('form');
-        form.method = 'POST'; form.action = BASE_URL + 'update/run';
-        var input = document.createElement('input');
-        input.type = 'hidden'; input.name = '_csrf_token';
-        input.value = document.querySelector('meta[name="csrf-token"]').content;
-        form.appendChild(input); document.body.appendChild(form); form.submit();
+        showSwalLoading('Mengupdate Sistem', 'Mengunduh dan memasang pembaruan...\nProses ini membutuhkan waktu beberapa saat.');
+        setTimeout(function() {
+            var form = document.createElement('form');
+            form.method = 'POST'; form.action = BASE_URL + 'update/run';
+            var input = document.createElement('input');
+            input.type = 'hidden'; input.name = '_csrf_token';
+            input.value = document.querySelector('meta[name="csrf-token"]').content;
+            form.appendChild(input); document.body.appendChild(form); form.submit();
+        }, 2000);
     });
 }
 
