@@ -206,6 +206,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function systemUpdate() {
+    Swal.fire({
+        title: 'Update Sistem',
+        text: 'Proses update akan mengunduh versi terbaru dan mengganti file sistem. Lanjutkan?',
+        icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Update', cancelButtonText: 'Batal', reverseButtons: true,
+        customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-8 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0', confirmButton: 'btn-dash-primary text-[11px] px-4 py-2 mx-1 rounded-full', cancelButton: 'btn-dashboard-soft text-[11px] px-4 py-2 mx-1 rounded-full' }
+    }).then(function(r) {
+        if (!r.isConfirmed) return;
+        showSwalLoading('Mengupdate Sistem', 'Mengunduh dan memasang pembaruan...');
+        var form = document.createElement('form');
+        form.method = 'POST'; form.action = BASE_URL + 'update/run';
+        var input = document.createElement('input');
+        input.type = 'hidden'; input.name = '_csrf_token';
+        input.value = document.querySelector('meta[name="csrf-token"]').content;
+        form.appendChild(input); document.body.appendChild(form); form.submit();
+    });
+}
+
+// Auto check update
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    fetch(BASE_URL + 'update/check').then(function(r){return r.json()}).then(function(d){
+        if (d.update_available) {
+            var badge = document.createElement('span');
+            badge.className = 'absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-rose-500 rounded-full ring-2 ring-white';
+            var btn = document.getElementById('userMenuBtn');
+            if (btn && btn.parentElement) btn.parentElement.appendChild(badge);
+        }
+    }).catch(function(){});
+}
 </script>
 </body>
 </html>

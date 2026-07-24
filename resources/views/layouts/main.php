@@ -66,6 +66,7 @@ canvas { max-width: 100% !important; height: auto !important; }
                         <p class="text-[10px] text-slate-500"><?= e(ucfirst(str_replace('_', ' ', $user['level'] ?? 'user'))) ?></p>
                     </div>
                     <a href="<?= url('settings') ?>" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors">Pengaturan</a>
+                    <button onclick="systemUpdate()" class="w-full flex items-center gap-2 px-4 py-2 text-xs text-indigo-600 hover:bg-indigo-50 transition-colors text-left">Update Sistem</button>
                     <a href="#" onclick="confirmLogout()" class="flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition-colors">Logout</a>
                 </div>
             </div>

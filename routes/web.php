@@ -59,6 +59,10 @@ $router->get('/ai-analysis', [App\Controllers\AiAnalysisController::class, 'inde
 // Server Hardening
 $router->get('/hardening', [App\Controllers\HardeningController::class, 'index']);
 
+// Update
+$router->get('/update/check', [App\Controllers\UpdateController::class, 'check']);
+$router->post('/update/run', [App\Controllers\UpdateController::class, 'run']);
+
 // Server Security Scanner
 $router->get('/server-scan', [App\Controllers\ServerScanController::class, 'index']);
 $router->post('/server-scan/harden', [App\Controllers\ServerScanController::class, 'harden']);
