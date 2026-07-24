@@ -88,11 +88,14 @@ document.getElementById('websiteSelect')?.addEventListener('change', function() 
 function runVulnScan() {
     var id = document.getElementById('websiteSelect').value;
     if (!id) { toastr.error('Pilih website dulu'); return; }
-    toastr.info('Memindai kerentanan...');
+    showSwalLoading('Memindai Kerentanan', 'Proses pemindaian berlangsung...');
     fetch(BASE_URL + 'vulnerability-scan/api-scan?website_id=' + id)
         .then(r => r.json())
-        .then(d => { if (d.success) window.location = '?website_id=' + id; else toastr.error(d.error || 'Gagal'); })
-        .catch(() => toastr.error('Koneksi error'));
+        .then(d => {
+            if (d.success) { showSwalResult('success', 'Selesai', 'Pemindaian selesai'); window.location = '?website_id=' + id; }
+            else { showSwalResult('error', 'Gagal', d.error || 'Gagal'); }
+        })
+        .catch(function() { showSwalResult('error', 'Error', 'Koneksi error'); });
 }
 </script>
 

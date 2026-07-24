@@ -12,6 +12,7 @@ unset($_SESSION['new_api_key']);
         <p class="text-xs font-semibold text-emerald-800 mb-1">API Key baru berhasil dibuat!</p>
         <p class="text-[10px] text-emerald-600 mb-2">Simpan key ini. Tidak bisa dilihat lagi setelah halaman di-refresh.</p>
         <code class="block bg-white rounded-xl border border-emerald-200 px-4 py-3 text-xs font-mono text-slate-800 select-all"><?= e($newKey) ?></code>
+        <button onclick="copyKey('<?= e($newKey) ?>')" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-emerald-700">📋 Salin Key</button>
     </div>
     <?php endif; ?>
 
@@ -29,7 +30,11 @@ unset($_SESSION['new_api_key']);
             <div class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3">
                 <div>
                     <p class="text-xs font-medium text-slate-800"><?= e($k['name']) ?></p>
-                    <code class="text-[10px] text-slate-400 font-mono"><?= substr($k['key'], 0, 20) ?>...<?= substr($k['key'], -8) ?></code>
+                    <code class="text-[10px] text-slate-400 font-mono break-all"><?= substr($k['key'], 0, 20) ?>...<?= substr($k['key'], -8) ?></code>
+                    <button onclick="copyKey('<?= e($k['key']) ?>')" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-[9px] text-slate-500 hover:bg-slate-100 ml-1" title="Salin key">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                        Salin
+                    </button>
                     <span class="ml-2 text-[10px] text-slate-400"><?= e($k['permissions']) ?></span>
                     <span class="ml-2 text-[10px] <?= $k['is_active'] ? 'text-emerald-600' : 'text-rose-600' ?>"><?= $k['is_active'] ? 'Aktif' : 'Dicabut' ?></span>
                 </div>
@@ -98,3 +103,20 @@ GET    /api/summary               - Ringkasan monitoring
 </div>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>
+
+<script>
+function copyKey(key) {
+    navigator.clipboard.writeText(key).then(function() {
+        toastr.success('API Key disalin ke clipboard', 'Berhasil');
+    }).catch(function() {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = key;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        toastr.success('API Key disalin ke clipboard', 'Berhasil');
+    });
+}
+</script>

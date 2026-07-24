@@ -149,7 +149,7 @@ class VulnScanner
 
         // Check .env exposure
         $envCheck = $this->fetchUrl($this->url . '/.env');
-        if ($envCheck && (str_contains($envCheck, 'APP_ENV') || str_contains($envCheck, 'DB_HOST'))) {
+        if ($envCheck && (str_contains($envCheck, 'APP_KEY') || str_contains($envCheck, 'DB_CONNECTION'))) {
             $isLaravel = true;
             $this->results['cms'] = 'Laravel';
             $this->addVuln('critical', 'File .env terbuka — semua kredensial database dan APP_KEY terekspos', '/.env');
@@ -165,10 +165,10 @@ class VulnScanner
         // Check debug mode
         $debugCheck = $this->fetchUrl($this->url . '/config/app.php');
         if ($debugCheck) {
-            if (str_contains($debugCheck, "'debug' => true") || str_contains($debugCheck, 'APP_DEBUG=true')) {
+            if (str_contains($debugCheck, "'debug' => true") || str_contains($debugCheck, "APP_DEBUG=true")) {
+                $isLaravel = true;
                 $this->addVuln('high', 'APP_DEBUG aktif — informasi sensitif bocor saat error', 'Mode debug');
             }
-            $isLaravel = $isLaravel || true;
         }
 
         if ($isLaravel && !$this->results['cms']) {

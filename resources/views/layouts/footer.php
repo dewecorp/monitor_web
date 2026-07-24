@@ -6,6 +6,15 @@
     <span>v2.0</span>
 </footer>
 
+<!-- Back to Top -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;width:3rem;height:3rem;border-radius:9999px;background:linear-gradient(135deg,#4338ca,#047857);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(4,120,87,0.4);font-size:1.5rem;line-height:1;opacity:0.9;transition:all 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.opacity=1" onmouseout="this.style.transform='scale(1)';this.style.opacity=0.9">
+    <svg style="width:1.25rem;height:1.25rem;margin:auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+</button>
+<script>
+var bt = document.getElementById('backToTop');
+window.addEventListener('scroll', function() { if (bt) bt.style.display = (window.scrollY > 300) ? '' : 'none'; });
+</script>
+
 <script>
 // Force fresh load every time
 window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(true); });
@@ -19,26 +28,34 @@ const BASE_URL = '<?= url('/') ?>';
 <script>
 toastr.options = { positionClass: 'toast-bottom-right', progressBar: true, closeButton: true, timeOut: 3000 };
 
+function showSwalLoading(title, text) {
+    Swal.fire({ title: title, text: text, allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false, didOpen: function() { Swal.showLoading(); }, customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-8 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0' } });
+}
+
+function showSwalResult(icon, title, text) {
+    Swal.fire({ icon: icon, title: title, text: text, timer: 3000, showConfirmButton: false, customClass: { popup: 'rounded-2xl shadow-2xl border border-slate-200 p-6 font-sans', title: 'text-sm font-semibold text-slate-900 !mt-0 !mb-1 !p-0', htmlContainer: '!text-xs !text-slate-500 !mt-0 !mb-0 !p-0' } });
+}
+
 function checkAllWebsites() {
-    toastr.info('Memulai pengecekan semua website...', 'WEBGUARDIAN');
+    showSwalLoading('Memeriksa Semua Website', 'Proses pengecekan berlangsung...');
     fetch(BASE_URL + 'api/check-all')
         .then(r => r.json())
         .then(d => {
-            if (d.success) { toastr.success(d.message, 'Selesai'); setTimeout(() => location.reload(), 2000); }
-            else { toastr.error(d.message || 'Gagal', 'Error'); }
+            if (d.success) { showSwalResult('success', 'Selesai', d.message); setTimeout(function() { location.reload(); }, 2000); }
+            else { showSwalResult('error', 'Gagal', d.message || 'Gagal mengecek'); }
         })
-        .catch(() => toastr.error('Koneksi error', 'Error'));
+        .catch(function() { showSwalResult('error', 'Error', 'Koneksi error'); });
 }
 
 function checkSingleWebsite(id) {
-    toastr.info('Memeriksa website...', 'WEBGUARDIAN');
+    showSwalLoading('Memeriksa Website', 'Proses pengecekan berlangsung...');
     fetch(BASE_URL + 'api/check/' + id)
         .then(r => r.json())
         .then(d => {
-            if (d.success) { toastr.success(d.message, 'Selesai'); setTimeout(() => location.reload(), 1500); }
-            else { toastr.error(d.message || 'Gagal', 'Error'); }
+            if (d.success) { showSwalResult('success', 'Selesai', d.message); setTimeout(function() { location.reload(); }, 1500); }
+            else { showSwalResult('error', 'Gagal', d.message || 'Gagal mengecek'); }
         })
-        .catch(() => toastr.error('Koneksi error', 'Error'));
+        .catch(function() { showSwalResult('error', 'Error', 'Koneksi error'); });
 }
 
 function confirmLogout() {

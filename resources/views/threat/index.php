@@ -97,14 +97,14 @@ document.getElementById('websiteSelect')?.addEventListener('change', function() 
 function runThreatScan() {
     var id = document.getElementById('websiteSelect').value;
     if (!id) { toastr.error('Pilih website dulu'); return; }
-    toastr.info('Memindai ancaman...');
+    showSwalLoading('Memindai Ancaman', 'Proses pemindaian berlangsung...');
     fetch(BASE_URL + 'threat-detection/api-scan?website_id=' + id)
         .then(r => r.json())
         .then(d => {
-            if (d.success) { window.location = '?website_id=' + id; }
-            else { toastr.error(d.error || 'Gagal'); }
+            if (d.success) { showSwalResult('success', 'Selesai', 'Pemindaian selesai'); window.location = '?website_id=' + id; }
+            else { showSwalResult('error', 'Gagal', d.error || 'Gagal'); }
         })
-        .catch(() => toastr.error('Koneksi error'));
+        .catch(function() { showSwalResult('error', 'Error', 'Koneksi error'); });
 }
 </script>
 

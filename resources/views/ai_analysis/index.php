@@ -10,13 +10,23 @@ require VIEW_PATH . '/layouts/main.php';
 </div>
 
 <div class="mb-5">
-    <select onchange="if(this.value)window.location='?website_id='+this.value" class="form-select-dash text-xs w-64">
+    <select id="aiWebsiteSelect" class="form-select-dash text-xs w-64">
         <option value="">— Pilih Website —</option>
         <?php foreach ($websites as $w): ?>
         <option value="<?= $w['id'] ?>" <?= $selectedWebsiteId == $w['id'] ? 'selected' : '' ?>><?= e($w['nama_website']) ?></option>
         <?php endforeach; ?>
     </select>
+    <button onclick="runAIAnalysis()" class="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 ml-2">Analisis</button>
 </div>
+
+<script>
+function runAIAnalysis() {
+    var id = document.getElementById('aiWebsiteSelect').value;
+    if (!id) { toastr.error('Pilih website dulu'); return; }
+    showSwalLoading('AI Security Analysis', 'Menganalisis data keamanan...');
+    setTimeout(function() { window.location = '?website_id=' + id; }, 1500);
+}
+</script>
 
 <?php if ($report): $r = $report; ?>
 <!-- Header -->
