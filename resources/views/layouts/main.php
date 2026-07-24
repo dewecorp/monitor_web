@@ -56,12 +56,18 @@ canvas { max-width: 100% !important; height: auto !important; }
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Check All
             </button>
-            <a href="#" onclick="confirmLogout()" class="hidden md:inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50/80 px-3 py-1.5 text-[11px] font-medium text-rose-600 hover:bg-rose-100 transition-colors">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7l-4-4m0 0L8 7m4-4v12m5 4H7a2 2 0 01-2-2v-3"/></svg>
-                Logout
-            </a>
-            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-emerald-500 text-[10px] font-bold text-white shadow-sm shadow-emerald-500/20">
-                <?= e(strtoupper(substr($user['nama'] ?? 'U', 0, 2))) ?>
+            <div class="relative" onmouseenter="showUserMenu()" onmouseleave="hideUserMenu()">
+                <button id="userMenuBtn" class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-emerald-500 text-[10px] font-bold text-white shadow-sm shadow-emerald-500/20 cursor-pointer hover:shadow-md transition-shadow">
+                    <?= e(strtoupper(substr($user['nama'] ?? 'U', 0, 2))) ?>
+                </button>
+                <div id="userMenu" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 hidden z-50">
+                    <div class="px-4 py-2 border-b border-slate-100">
+                        <p class="text-xs font-semibold text-slate-800"><?= e($user['nama'] ?? 'User') ?></p>
+                        <p class="text-[10px] text-slate-500"><?= e(ucfirst(str_replace('_', ' ', $user['level'] ?? 'user'))) ?></p>
+                    </div>
+                    <a href="<?= url('settings') ?>" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors">Pengaturan</a>
+                    <a href="#" onclick="confirmLogout()" class="flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition-colors">Logout</a>
+                </div>
             </div>
         </div>
     </div>

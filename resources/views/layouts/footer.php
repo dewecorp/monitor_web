@@ -13,6 +13,21 @@
 <script>
 var bt = document.getElementById('backToTop');
 window.addEventListener('scroll', function() { if (bt) bt.style.display = (window.scrollY > 300) ? '' : 'none'; });
+
+var userMenuTimer;
+
+function showUserMenu() {
+    clearTimeout(userMenuTimer);
+    var menu = document.getElementById('userMenu');
+    if (menu) menu.classList.remove('hidden');
+}
+
+function hideUserMenu() {
+    userMenuTimer = setTimeout(function() {
+        var menu = document.getElementById('userMenu');
+        if (menu) menu.classList.add('hidden');
+    }, 300);
+}
 </script>
 
 <script>
