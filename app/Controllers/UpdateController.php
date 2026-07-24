@@ -23,7 +23,7 @@ class UpdateController
         $zipUrl = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
 
         $ch = curl_init();
-        curl_setopt_array($ch, [CURLOPT_URL => $zipUrl, CURLOPT_NOBODY => true, CURLOPT_TIMEOUT => 10, CURLOPT_FOLLOWLOCATION => true, CURLOPT_USERAGENT => 'WEBGUARDIAN/1.0']);
+        curl_setopt_array($ch, [CURLOPT_URL => $zipUrl, CURLOPT_NOBODY => true, CURLOPT_TIMEOUT => 10, CURLOPT_FOLLOWLOCATION => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_USERAGENT => 'WEBGUARDIAN/1.0']);
         curl_exec($ch);
         $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -82,7 +82,8 @@ class UpdateController
             CURLOPT_URL => 'https://api.github.com/repos/dewecorp/monitor_web/releases/latest',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10,
-            CURLOPT_USERAGENT => 'WEBGUARDIAN-Updater/1.0',
+            CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_USERAGENT => 'WEBGUARDIAN-Updater/1.0',
             CURLOPT_HTTPHEADER => ['Accept: application/vnd.github.v3+json'],
         ]);
         $resp = curl_exec($ch);
@@ -100,23 +101,33 @@ class UpdateController
         if (!is_dir($this->tempDir)) mkdir($this->tempDir, 0755, true);
         $zipPath = $this->tempDir . '/update.zip';
 
-        $url = 'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip';
+        // Try downloading directly from GitHub
+        $urls = [
+            'https://codeload.github.com/dewecorp/monitor_web/zip/refs/heads/master',
+            'https://github.com/dewecorp/monitor_web/archive/refs/heads/master.zip',
+        ];
 
-        $ch = curl_init();
-        $fp = fopen($zipPath, 'w');
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_FILE => $fp,
-            CURLOPT_TIMEOUT => 120,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_USERAGENT => 'WEBGUARDIAN-Updater/1.0',
-        ]);
-        curl_exec($ch);
-        $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        fclose($fp);
+        foreach ($urls as $url) {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 120,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_USERAGENT => 'WEBGUARDIAN-Updater/1.0',
+            ]);
+            $body = curl_exec($ch);
+            $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-        return ($http === 200) ? $zipPath : null;
+            if ($http === 200 && strlen($body) > 1000) {
+                file_put_contents($zipPath, $body);
+                return $zipPath;
+            }
+        }
+
+        return null;
     }
 
     private function extractZip(string $zipPath): ?string
