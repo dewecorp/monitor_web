@@ -24,7 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApiRoute) {
     App\Middleware\CSRF::check();
 }
 
-if (!isset($_SESSION['_csrf_token'])) {
+// Generate CSRF token only for page loads, not AJAX/API calls
+$isApiRoute = str_contains($_SERVER['REQUEST_URI'], '/api/');
+if (!isset($_SESSION['_csrf_token']) && !$isApiRoute) {
     App\Middleware\CSRF::generate();
 }
 

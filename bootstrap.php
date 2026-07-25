@@ -22,7 +22,7 @@ session_set_cookie_params([
     'path' => '/',
     'secure' => false,
     'httponly' => true,
-    'samesite' => 'Strict',
+    'samesite' => 'Lax',
 ]);
 
 App\Middleware\SecurityHeaders::set();

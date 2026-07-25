@@ -98,7 +98,8 @@ document.getElementById('websiteSelect')?.addEventListener('change', function() 
 function runCheck() {
     var id = document.getElementById('websiteSelect').value;
     if (!id) { toastr.error('Pilih website dulu'); return; }
-    window.location = '?website_id=' + id;
+    showSwalLoading('Hardening Check', 'Memeriksa konfigurasi keamanan...');
+    setTimeout(function() { window.location = '?website_id=' + id; }, 1500);
 }
 </script>
 

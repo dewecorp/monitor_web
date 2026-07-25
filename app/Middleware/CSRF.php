@@ -18,11 +18,20 @@ class CSRF
         $stored = $_SESSION['_csrf_token'] ?? '';
         $time = $_SESSION['_csrf_time'] ?? 0;
 
-        if (!$token || !$stored) return false;
-        if (!hash_equals($stored, $token)) return false;
+        if (!$token || !$stored) {
+            error_log("CSRF: empty token - stored=" . (empty($stored) ? 'empty' : 'set') . " submitted=" . (empty($token) ? 'empty' : 'set'));
+            return false;
+        }
+        if (!hash_equals($stored, $token)) {
+            error_log("CSRF: mismatch - stored=" . substr($stored, 0, 10) . "... submitted=" . substr($token, 0, 10) . "...");
+            return false;
+        }
 
         // Token expires after 2 hours
-        if (time() - $time > 7200) return false;
+        if (time() - $time > 7200) {
+            error_log("CSRF: expired - time=" . $time . " now=" . time());
+            return false;
+        }
 
         return true;
     }
@@ -32,11 +41,11 @@ class CSRF
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token = $_POST['_csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
             if (!self::validate($token)) {
-                http_response_code(419);
-                echo json_encode(['success' => false, 'error' => 'CSRF token invalid or expired']);
+                $_SESSION['error'] = 'CSRF token mismatch. Silakan refresh halaman dan coba lagi.';
+                $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+                header('Location: ' . $referer);
                 exit;
             }
-            self::generate();
         }
     }
 }
