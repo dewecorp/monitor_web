@@ -17,7 +17,7 @@ class Website extends Model
     {
         return static::db()->query("
             SELECT w.*,
-                m.is_up, m.response_time_ms, m.status_code, m.checked_at as last_check,
+                m.is_up, m.is_blocked, m.response_time_ms, m.status_code, m.checked_at as last_check,
                 s.score as security_score, s.checked_at as last_scan
             FROM websites w
             LEFT JOIN monitor_logs m ON m.website_id = w.id
@@ -36,9 +36,15 @@ class Website extends Model
             SELECT COUNT(DISTINCT w.id) as c FROM websites w
             JOIN monitor_logs m ON m.website_id = w.id
                 AND m.checked_at = (SELECT MAX(m2.checked_at) FROM monitor_logs m2 WHERE m2.website_id = w.id)
-            WHERE w.status='active' AND m.is_up = 1
+            WHERE w.status='active' AND m.is_up = 1 AND COALESCE(m.is_blocked, 0) = 0
         ")->fetch()['c'];
-        $offline = $total - $online;
+        $blocked = static::db()->query("
+            SELECT COUNT(DISTINCT w.id) as c FROM websites w
+            JOIN monitor_logs m ON m.website_id = w.id
+                AND m.checked_at = (SELECT MAX(m2.checked_at) FROM monitor_logs m2 WHERE m2.website_id = w.id)
+            WHERE w.status='active' AND COALESCE(m.is_blocked, 0) = 1
+        ")->fetch()['c'];
+        $offline = $total - $online - $blocked;
 
         $avgResponse = static::db()->query("
             SELECT COALESCE(AVG(m.response_time_ms),0) as avg
@@ -55,6 +61,7 @@ class Website extends Model
             'total' => $total,
             'online' => $online,
             'offline' => $offline,
+            'blocked' => $blocked,
             'avg_response' => round((float)$avgResponse),
             'avg_security' => round((float)$avgSecurity),
         ];

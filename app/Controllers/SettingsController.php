@@ -59,6 +59,45 @@ class SettingsController
         redirect('/settings');
     }
 
+    public function gaCredentials(): void
+    {
+        Auth::check();
+        foreach (['ga_client_email', 'ga_private_key'] as $key) {
+            if (isset($_POST[$key]) && trim($_POST[$key]) !== '') {
+                Setting::set($key, trim($_POST[$key]));
+            }
+        }
+        User::logActivity($_SESSION['user_id'], 'Update GA Credentials', 'Memperbarui kredensial Google Analytics');
+        $_SESSION['success'] = 'Kredensial Google Analytics berhasil disimpan!';
+        redirect('/settings');
+    }
+
+    public function testGa(): void
+    {
+        Auth::check();
+        $ga = new \App\Services\GoogleAnalytics();
+        $result = $ga->testConnection(trim((string)($_GET['property_id'] ?? '')) ?: null);
+        jsonResponse($result);
+    }
+
+    public function syncGa(): void
+    {
+        Auth::check();
+        $ga = new \App\Services\GoogleAnalytics();
+        if (!$ga->isConfigured()) {
+            jsonResponse(['success' => false, 'message' => 'Kredensial GA belum dikonfigurasi.']);
+            return;
+        }
+        $result = $ga->syncAllWebsites();
+        Setting::set('ga_last_sync', date('Y-m-d'), 'string', 'Tanggal terakhir sinkronisasi Google Analytics');
+        User::logActivity($_SESSION['user_id'], 'Sync GA', "Sinkronisasi manual GA: {$result['synced']} tersinkron, {$result['skipped']} dilewati");
+        $message = "Sinkronisasi selesai: {$result['synced']} website tersinkron, {$result['skipped']} dilewati (belum ada GA Property ID).";
+        if (!empty($result['errors'])) {
+            $message .= ' Error: ' . implode('; ', $result['errors']);
+        }
+        jsonResponse(['success' => empty($result['errors']), 'message' => $message, 'data' => $result]);
+    }
+
     public function testNotification(): void
     {
         Auth::check();

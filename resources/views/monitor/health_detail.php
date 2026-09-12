@@ -18,7 +18,10 @@ $activeMenu = 'health'; require VIEW_PATH . '/layouts/main.php';
         <div class="grid gap-4 sm:grid-cols-3 mb-4">
             <div class="rounded-xl bg-slate-50 p-4 text-center">
                 <p class="text-[10px] uppercase tracking-wide text-slate-400">Status</p>
-                <div class="mt-1"><?= statusBadge((bool)($latest['is_up'] ?? 0)) ?></div>
+                <div class="mt-1"><?= statusBadge((bool)($latest['is_up'] ?? 0), (bool)($latest['is_blocked'] ?? 0)) ?></div>
+                <?php if (!empty($latest['is_blocked'])): ?>
+                <p class="mt-2 text-[10px] text-amber-600"><?= e($latest['error_message'] ?? 'IP server dibatasi Cloudflare') ?></p>
+                <?php endif; ?>
             </div>
             <div class="rounded-xl bg-slate-50 p-4 text-center">
                 <p class="text-[10px] uppercase tracking-wide text-slate-400">HTTP Code</p>

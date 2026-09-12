@@ -37,7 +37,7 @@ $activeMenu = 'health'; require VIEW_PATH . '/layouts/main.php';
                         <p class="font-medium text-slate-800"><?= e($w['nama_website']) ?></p>
                         <p class="text-[10px] text-slate-400 truncate max-w-[180px]"><?= e($w['url']) ?></p>
                     </td>
-                    <td class="px-4 py-3 text-center"><?= statusBadge($w['is_up'] ?? 0) ?></td>
+                    <td class="px-4 py-3 text-center"><?= statusBadge($w['is_up'] ?? 0, $w['is_blocked'] ?? 0) ?></td>
                     <td class="px-4 py-3 text-center"><span class="font-mono font-medium <?= ($w['status_code'] ?? 0) >= 200 && ($w['status_code'] ?? 0) < 400 ? 'text-emerald-600' : 'text-rose-600' ?>"><?= $w['status_code'] ?? '-' ?></span></td>
                     <td class="px-4 py-3 text-right font-medium <?= ($w['response_time_ms'] ?? 0) < 500 ? 'text-emerald-600' : (($w['response_time_ms'] ?? 0) < 1000 ? 'text-amber-600' : 'text-rose-600') ?>"><?= $w['response_time_ms'] ?? '-' ?> ms</td>
                     <td class="px-4 py-3 text-right text-slate-400"><?= ($w['last_check'] ?? '') ? timeAgo($w['last_check']) : '-' ?></td>

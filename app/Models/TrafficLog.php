@@ -48,6 +48,24 @@ class TrafficLog extends Model
                         $visitors, $pageViews, $bandwidth, $avgResponse]);
     }
 
+    /**
+     * Simpan data traffic untuk tanggal tertentu (dipakai sinkronisasi Google Analytics).
+     * Nilai menimpa (bukan menambah) agar aman dijalankan ulang.
+     */
+    public static function recordForDate(int $websiteId, string $date, int $visitors, int $pageViews, float $bandwidth, float $avgResponse): void
+    {
+        $stmt = static::db()->prepare("
+            INSERT INTO traffic_logs (website_id, visitors, page_views, bandwidth_mb, avg_response_ms, logged_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                visitors = VALUES(visitors),
+                page_views = VALUES(page_views),
+                bandwidth_mb = VALUES(bandwidth_mb),
+                avg_response_ms = VALUES(avg_response_ms)
+        ");
+        $stmt->execute([$websiteId, $visitors, $pageViews, $bandwidth, $avgResponse, $date]);
+    }
+
     public static function allWebsitesSummary(int $days = 7): array
     {
         return static::db()->query("

@@ -35,8 +35,8 @@ $activeMenu = 'websites'; require VIEW_PATH . '/layouts/main.php';
                     <td class="px-3 py-3 text-center text-[11px] text-slate-400"><?= $i++ ?></td>
                     <td class="px-4 py-3 font-medium text-slate-800"><?= e($w['nama_website']) ?></td>
                     <td class="px-4 py-3 text-slate-400 truncate max-w-[200px]"><?= e($w['url']) ?></td>
-                    <td class="px-4 py-3 text-center"><?= statusBadge($w['is_up'] ?? 0) ?></td>
-                    <td class="px-4 py-3 text-center text-slate-600"><?= ($w['response_time'] ?? 0) ? $w['response_time'] . ' ms' : '-' ?></td>
+                    <td class="px-4 py-3 text-center"><?= statusBadge($w['is_up'] ?? 0, $w['is_blocked'] ?? 0) ?></td>
+                    <td class="px-4 py-3 text-center text-slate-600"><?= ($w['response_time_ms'] ?? 0) ? $w['response_time_ms'] . ' ms' : '-' ?></td>
                     <td class="px-4 py-3 text-center"><span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-medium text-slate-600"><?= e($w['kategori'] ?? 'Umum') ?></span></td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-1">

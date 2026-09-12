@@ -19,6 +19,7 @@ $router->get('/websites/create', [WebsiteController::class, 'create'], 'websites
 $router->post('/websites/store', [WebsiteController::class, 'store']);
 $router->get('/websites/{id}/edit', [WebsiteController::class, 'edit']);
 $router->post('/websites/{id}/update', [WebsiteController::class, 'update']);
+$router->post('/websites/test-ga', [WebsiteController::class, 'testGa']);
 $router->post('/websites/{id}/delete', [WebsiteController::class, 'destroy']);
 
 $router->get('/monitor/health', [MonitorController::class, 'health'], 'monitor.health');
@@ -33,6 +34,9 @@ $router->get('/settings', [App\Controllers\SettingsController::class, 'index']);
 $router->post('/settings/update', [App\Controllers\SettingsController::class, 'update']);
 $router->post('/settings/credentials', [App\Controllers\SettingsController::class, 'credentials']);
 $router->get('/settings/test-notification', [App\Controllers\SettingsController::class, 'testNotification']);
+$router->post('/settings/ga-credentials', [App\Controllers\SettingsController::class, 'gaCredentials']);
+$router->get('/settings/test-ga', [App\Controllers\SettingsController::class, 'testGa']);
+$router->post('/settings/sync-ga', [App\Controllers\SettingsController::class, 'syncGa']);
 $router->get('/reports', [App\Controllers\ReportController::class, 'index']);
 $router->get('/reports/export-csv', [App\Controllers\ReportController::class, 'exportCsv']);
 $router->get('/notifications', [App\Controllers\ReportController::class, 'notificationHistory']);

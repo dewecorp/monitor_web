@@ -57,7 +57,7 @@ $activeMenu = 'reports'; require VIEW_PATH . '/layouts/main.php';
                 <tr class="hover:bg-slate-50/50">
                     <td class="px-3 py-3 text-center text-[11px] text-slate-400"><?= $i++ ?></td>
                     <td class="px-4 py-3"><p class="font-medium text-slate-800"><?= e($w['nama_website']) ?></p><p class="text-[10px] text-slate-400"><?= e($w['url']) ?></p></td>
-                    <td class="px-4 py-3 text-center"><?= statusBadge((bool)($w['is_up'] ?? 0)) ?></td>
+                    <td class="px-4 py-3 text-center"><?= statusBadge((bool)($w['is_up'] ?? 0), (bool)($w['is_blocked'] ?? 0)) ?></td>
                     <td class="px-4 py-3 text-right <?= ($w['response_time_ms'] ?? 999) < 500 ? 'text-emerald-600' : (($w['response_time_ms'] ?? 999) < 1000 ? 'text-amber-600' : 'text-rose-600') ?>"><?= $w['response_time_ms'] ?? '-' ?> ms</td>
                     <td class="px-4 py-3 text-right"><?= $w['security_score'] ?? '-' ?></td>
                     <td class="px-4 py-3 text-right text-slate-400"><?= ($w['last_check'] ?? '') ? timeAgo($w['last_check']) : '-' ?></td>

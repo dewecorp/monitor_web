@@ -34,8 +34,11 @@ if (!function_exists('formatBytes')) {
 }
 
 if (!function_exists('statusBadge')) {
-    function statusBadge(bool $isUp): string
+    function statusBadge(bool|int $isUp, bool|int $isBlocked = false): string
     {
+        if ($isBlocked) {
+            return '<span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-600 ring-1 ring-amber-500/20" title="IP server dibatasi Cloudflare — bukan situs down"><span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>Terblokir</span>';
+        }
         if ($isUp) {
             return '<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-600 ring-1 ring-emerald-500/20"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Online</span>';
         }

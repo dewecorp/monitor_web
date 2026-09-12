@@ -123,7 +123,7 @@ $s = $summary;
                             <p class="text-xs font-medium text-slate-800"><?= e($w['nama_website']) ?></p>
                             <p class="text-[10px] text-slate-400 truncate max-w-[160px]"><?= e($w['url']) ?></p>
                         </td>
-                        <td class="px-3 py-2.5 text-center"><?= statusBadge((bool)($w['is_up'] ?? 0)) ?></td>
+                        <td class="px-3 py-2.5 text-center"><?= statusBadge((bool)($w['is_up'] ?? 0), (bool)($w['is_blocked'] ?? 0)) ?></td>
                         <td class="px-3 py-2.5 text-right text-xs font-medium <?= ($w['response_time_ms'] ?? 999) < 500 ? 'text-emerald-600' : (($w['response_time_ms'] ?? 999) < 1000 ? 'text-amber-600' : 'text-rose-600') ?>"><?= $w['response_time_ms'] ?? '-' ?> ms</td>
                         <td class="px-3 py-2.5 text-right text-[11px] text-slate-400"><?= $lastCheck ? timeAgo($lastCheck) : 'Belum diperiksa' ?></td>
                         <td class="px-3 py-2.5 text-center">

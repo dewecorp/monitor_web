@@ -30,6 +30,9 @@ class WebsiteController
             'url' => $_POST['url'] ?? '',
             'deskripsi' => $_POST['deskripsi'] ?? '',
             'kategori' => $_POST['kategori'] ?? '',
+            'ga_property_id' => trim($_POST['ga_property_id'] ?? '') ?: null,
+            'ga_client_email' => trim($_POST['ga_client_email'] ?? '') ?: null,
+            'ga_private_key' => trim($_POST['ga_private_key'] ?? '') ?: null,
         ]);
         User::logActivity($_SESSION['user_id'], 'Tambah Website', 'Menambahkan website: ' . ($_POST['nama_website'] ?? ''));
         $_SESSION['success'] = 'Website berhasil ditambahkan!';
@@ -52,11 +55,31 @@ class WebsiteController
             'url' => $_POST['url'] ?? '',
             'deskripsi' => $_POST['deskripsi'] ?? '',
             'kategori' => $_POST['kategori'] ?? '',
+            'ga_property_id' => trim($_POST['ga_property_id'] ?? '') ?: null,
+            'ga_client_email' => trim($_POST['ga_client_email'] ?? '') ?: null,
+            'ga_private_key' => trim($_POST['ga_private_key'] ?? '') ?: null,
             'status' => $_POST['status'] ?? 'active',
         ]);
         User::logActivity($_SESSION['user_id'], 'Edit Website', 'Mengedit website ID: ' . $params['id']);
         $_SESSION['success'] = 'Website berhasil diperbarui!';
         redirect('/websites');
+    }
+
+    /**
+     * Test koneksi GA dengan kredensial yang diisi di form (sebelum disimpan).
+     */
+    public function testGa(): void
+    {
+        Auth::check();
+        $creds = [
+            'ga_client_email' => trim((string)($_POST['ga_client_email'] ?? '')),
+            'ga_private_key' => trim((string)($_POST['ga_private_key'] ?? '')),
+        ];
+        $propertyId = trim((string)($_POST['ga_property_id'] ?? ''));
+
+        $ga = new \App\Services\GoogleAnalytics();
+        $result = $ga->testConnection($propertyId !== '' ? $propertyId : null, $creds);
+        jsonResponse($result);
     }
 
     public function destroy(array $params): void

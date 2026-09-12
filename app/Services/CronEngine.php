@@ -42,14 +42,40 @@ class CronEngine
             $this->checkWebsite((int)$website['id'], $website['url'], $website['nama_website']);
         }
 
+        $this->syncGoogleAnalytics();
+
         return $this->results;
+    }
+
+    /**
+     * Sinkronisasi data traffic Google Analytics sekali per hari.
+     * Data GA "kemarin" sudah final sehingga akurat untuk dicatat.
+     */
+    private function syncGoogleAnalytics(): void
+    {
+        $today = date('Y-m-d');
+        if (Setting::get('ga_last_sync') === $today) return;
+
+        $ga = new GoogleAnalytics();
+        if (!$ga->isConfigured()) return;
+
+        $sync = $ga->syncAllWebsites();
+        $this->results['ga_synced'] = $sync['synced'];
+        $this->results['ga_skipped'] = $sync['skipped'];
+        if (!empty($sync['errors'])) {
+            $this->results['ga_errors'] = $sync['errors'];
+        }
+
+        Setting::set('ga_last_sync', $today, 'string', 'Tanggal terakhir sinkronisasi Google Analytics');
     }
 
     private function checkWebsite(int $id, string $url, string $name): void
     {
         $health = $this->monitor->checkWebsite($id, $url);
 
-        if ($health['is_up']) {
+        if (!empty($health['blocked'])) {
+            $this->results['blocked'] = ($this->results['blocked'] ?? 0) + 1;
+        } elseif ($health['is_up']) {
             $this->results['checked']++;
             $resolved = Incident::resolve($id, "Website Down: {$name}");
             if ($resolved) $this->results['incidents_resolved']++;
@@ -66,7 +92,7 @@ class CronEngine
 
         $this->results['details'][] = [
             'website' => $name,
-            'status' => $health['is_up'] ? 'OK' : 'DOWN',
+            'status' => !empty($health['blocked']) ? 'BLOCKED' : ($health['is_up'] ? 'OK' : 'DOWN'),
             'http_code' => $health['status_code'],
             'response_ms' => $health['response_time_ms'],
         ];

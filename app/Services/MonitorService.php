@@ -17,7 +17,8 @@ class MonitorService
             'website_id' => $websiteId,
             'status_code' => $health['status_code'],
             'response_time_ms' => $health['response_time_ms'],
-            'is_up' => $health['is_up'],
+            'is_up' => (int)$health['is_up'],
+            'is_blocked' => (int)($health['blocked'] ?? 0),
             'error_message' => $health['error'],
         ]);
 
@@ -37,11 +38,15 @@ class MonitorService
                 ));
             }
 
+            // Catat data traffic nyata. Pengunjung/page views diambil dari
+            // Google Analytics jika website sudah diisi ga_property_id.
+            // Jika belum dikonfigurasi, hanya response time health check yang dicatat.
+            $gaData = $this->fetchGoogleAnalytics($websiteId);
             TrafficLog::record(
                 $websiteId,
-                rand(5, 30),
-                rand(10, 150),
-                round(rand(10, 100) / 10, 2),
+                $gaData['visitors'] ?? 0,
+                $gaData['page_views'] ?? 0,
+                $gaData['bandwidth_mb'] ?? 0.0,
                 $health['response_time_ms']
             );
         }
@@ -64,24 +69,49 @@ class MonitorService
             CURLOPT_MAXREDIRS => 3,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_NOBODY => false,
-            CURLOPT_RANGE => '0-1024',
             CURLOPT_HEADER => true,
+            CURLOPT_HTTPHEADER => [
+                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language: id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Upgrade-Insecure-Requests: 1',
+            ],
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         ]);
         $start = microtime(true);
-        curl_exec($ch);
+        $raw = (string)curl_exec($ch);
         $end = microtime(true);
         $info = curl_getinfo($ch);
         $error = curl_error($ch);
         curl_close($ch);
 
+        $headerSize = (int)($info['header_size'] ?? 0);
+        $headerBlock = substr($raw, 0, $headerSize);
+        $statusCode = (int)($info['http_code'] ?: 0);
+        $isUp = ($statusCode >= 200 && $statusCode < 400) ? 1 : 0;
+        $errMsg = $error ?: null;
+        $blocked = false;
+
+        // Cloudflare kadang memblokir IP server monitoring (403 + cf-ray)
+        // padahal situsnya sehat. Itu bukan situs down — tandai terblokir.
+        if ($this->isCloudflareBlock($statusCode, $headerBlock)) {
+            $blocked = true;
+            $errMsg = 'Terblokir Cloudflare (HTTP 403) — IP server dibatasi, bukan situs down';
+        }
+
         return [
-            'status_code' => $info['http_code'] ?: 0,
+            'status_code' => $statusCode,
             'response_time_ms' => round(($end - $start) * 1000),
-            'is_up' => ($info['http_code'] >= 200 && $info['http_code'] < 500) ? 1 : 0,
-            'error' => $error ?: null,
+            'is_up' => $isUp,
+            'blocked' => $blocked,
+            'error' => $errMsg ?: ($isUp ? null : "HTTP {$statusCode}"),
         ];
+    }
+
+    private function isCloudflareBlock(int $statusCode, string $headerBlock): bool
+    {
+        if ($statusCode !== 403) return false;
+        $lower = strtolower($headerBlock);
+        return str_contains($lower, 'cf-ray') && str_contains($lower, 'cloudflare');
     }
 
     public function sslCheck(string $url): ?array
@@ -118,6 +148,20 @@ class MonitorService
             'ssl_remaining_days' => $expireDate ? max(0, (int)((strtotime($expireDate) - time()) / 86400)) : 0,
             'tls_version' => $info['protocol'] ?? null,
         ];
+    }
+
+    /**
+     * Ambil data traffic GA4 untuk website jika ga_property_id sudah diisi
+     * dan kredensial GA sudah dikonfigurasi. Return null jika tidak tersedia.
+     */
+    private function fetchGoogleAnalytics(int $websiteId): ?array
+    {
+        $website = \App\Models\Website::find($websiteId);
+        $propertyId = trim((string)($website['ga_property_id'] ?? ''));
+        if ($propertyId === '') return null;
+
+        $ga = new GoogleAnalytics();
+        return $ga->fetchReport($propertyId, 'today', $website);
     }
 
     public function checkAll(): array
